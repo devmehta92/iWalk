@@ -1,13 +1,18 @@
 # NOTE: this example requires PyAudio because it uses the Microphone class
 from google import google
+from datetime import datetime
+import googlemaps
 import speech_recognition as sr
 
+gmaps = googlemaps.Client(key='AIzaSyDcX1ys0BXit1nLqtpLJGys0eSaPpXdulo')
+
+#KEY = AIzaSyDcX1ys0BXit1nLqtpLJGys0eSaPpXdulo
 # obtain audio from the microphone
 r = sr.Recognizer()
 with sr.Microphone() as source:
     print("Say something!")
     audio = r.listen(source)
-    print audio
+    #print audio
 
 # recognize speech using Sphinx
 #try:
@@ -24,10 +29,18 @@ try:
     # instead of `r.recognize_google(audio)`
     voice = r.recognize_google(audio)
     print("Google Speech Recognition thinks you said " + r.recognize_google(audio))
-    print voice
+    #print voice
     search_results = google.search(voice)
-    print search_results[0]
+    #print search_results
 except sr.UnknownValueError:
     print("Google Speech Recognition could not understand audio")
 except sr.RequestError as e:
     print("Could not request results from Google Speech Recognition service; {0}".format(e))
+
+# Request directions via public transit
+now = datetime.now()
+directions_result = gmaps.directions("413 Summit Avenue, Arlington, TX",
+                                     voice,
+                                     mode="walking",
+                                     departure_time=now)
+print directions_result

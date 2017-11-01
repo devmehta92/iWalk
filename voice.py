@@ -3,6 +3,54 @@ from google import google
 from datetime import datetime
 import googlemaps
 import speech_recognition as sr
+import html2text
+import serial
+import LatLon
+
+
+def getGPS():
+    recordNotFound = True
+    gps = serial.Serial("/dev/ttyS0", baudrate=9600)
+    while recordNotFound:
+        line = gps.readline()
+        data = line.split(",")
+        if data[0] == "$GPRMC":
+            if data[2] == "A":
+                i = 2
+                j = 2
+                cord_lat = data[3]
+                cord_long = data[5]
+                lat_update = str(cord_lat)
+                long_update = str(cord_long)
+                print lat_update
+                print long_update
+                latitude = cord_lat.split(".")
+                longitude = cord_long.split(".")
+                if len(latitude[0]) == 5:
+                    i = 3
+                if len(longitude[0]) == 5:
+                    j = 3
+
+                lat_deg = lat_update[:i]
+                lat_min = lat_update[i:]
+                lat_min_update = float(lat_min) / 60
+                long_deg = long_update[:j]
+                print long_deg
+                long_min = long_update[j:]
+                print long_min
+                long_min_update = float(long_min) / 60
+                lat = float(lat_deg) + lat_min_update
+                longitude_update = float(long_deg) + long_min_update
+                result_lat = str(lat)
+                result_long = str(longitude_update)
+                if data[4] == "S":
+                    result_lat = "-" + str(lat)
+
+                elif data[6] == "W":
+                    result_long = "-" + str(longitude_update)
+                result = result_lat + "," + result_long
+                recordNotFound = False
+    return (result)
 
 gmaps = googlemaps.Client(key='AIzaSyDcX1ys0BXit1nLqtpLJGys0eSaPpXdulo')
 
@@ -43,4 +91,24 @@ directions_result = gmaps.directions("413 Summit Avenue, Arlington, TX",
                                      voice,
                                      mode="walking",
                                      departure_time=now)
+
 print directions_result
+
+directions_result = directions_result[0]
+
+print directions_result
+
+
+for leg in directions_result['legs']:
+    startAddress = leg['start_address']
+    print "Start Address:", startAddress
+    endAddress = leg['end_address']
+    print "End Address:", endAddress
+    for step in leg['steps']:
+        direction_instructions = html2text.html2text(step['html_instructions'])
+        direction_distance = step['distance']
+        print "Direction instructions", direction_instructions
+        print "Direction distance", direction_distance
+
+gps = getGPS()
+print ("GPS = "+ gps)

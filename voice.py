@@ -52,7 +52,7 @@ def getGPS():
                 recordNotFound = False
     return (result)
 
-gmaps = googlemaps.Client(key='AIzaSyDcX1ys0BXit1nLqtpLJGys0eSaPpXdulo')
+gmaps = googlemaps.Client(key='')
 
 #KEY = AIzaSyDcX1ys0BXit1nLqtpLJGys0eSaPpXdulo
 # obtain audio from the microphone
